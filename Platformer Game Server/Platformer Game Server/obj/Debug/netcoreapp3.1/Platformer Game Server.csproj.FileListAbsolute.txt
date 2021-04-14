@@ -34,12 +34,10 @@ D:\github\Unity_Platformer_Game\Platformer Game Server\Platformer Game Server\bi
 D:\github\Unity_Platformer_Game\Platformer Game Server\Platformer Game Server\bin\Debug\netcoreapp3.1\Platformer Game Server.runtimeconfig.dev.json
 D:\github\Unity_Platformer_Game\Platformer Game Server\Platformer Game Server\bin\Debug\netcoreapp3.1\Platformer Game Server.dll
 D:\github\Unity_Platformer_Game\Platformer Game Server\Platformer Game Server\bin\Debug\netcoreapp3.1\Platformer Game Server.pdb
-D:\github\Unity_Platformer_Game\Platformer Game Server\Platformer Game Server\bin\Debug\netcoreapp3.1\Newtonsoft.Json.dll
 D:\github\Unity_Platformer_Game\Platformer Game Server\Platformer Game Server\obj\Debug\netcoreapp3.1\Platformer Game Server.csprojAssemblyReference.cache
 D:\github\Unity_Platformer_Game\Platformer Game Server\Platformer Game Server\obj\Debug\netcoreapp3.1\Platformer Game Server.AssemblyInfoInputs.cache
 D:\github\Unity_Platformer_Game\Platformer Game Server\Platformer Game Server\obj\Debug\netcoreapp3.1\Platformer Game Server.AssemblyInfo.cs
 D:\github\Unity_Platformer_Game\Platformer Game Server\Platformer Game Server\obj\Debug\netcoreapp3.1\Platformer Game Server.csproj.CoreCompileInputs.cache
-D:\github\Unity_Platformer_Game\Platformer Game Server\Platformer Game Server\obj\Debug\netcoreapp3.1\Platformer Game Server.csproj.CopyComplete
 D:\github\Unity_Platformer_Game\Platformer Game Server\Platformer Game Server\obj\Debug\netcoreapp3.1\Platformer Game Server.dll
 D:\github\Unity_Platformer_Game\Platformer Game Server\Platformer Game Server\obj\Debug\netcoreapp3.1\Platformer Game Server.pdb
 D:\github\Unity_Platformer_Game\Platformer Game Server\Platformer Game Server\obj\Debug\netcoreapp3.1\Platformer Game Server.genruntimeconfig.cache

@@ -104,7 +104,7 @@ namespace Platformer_Game_Server.modules {
                 client.SendMessage(json.Add("id", clients.GetUserID()).Add("type", "EntityPlayerSpawn").ToString());
             }
 
-            client.player = new EntityPlayer(client.GetUserID());
+            client.player = new EntityPlayer(this, client.GetUserID());
             client.player.SetHealthPoint(client.player.MAX_HEALTH);
             client.targets.Clear();
 
@@ -148,7 +148,7 @@ namespace Platformer_Game_Server.modules {
 
         public void MonsterSpawnRandomTargeting(int num) {
             for (int i = 0; i < num; i++) {
-                EntityMonster monster = new EntityMonster();
+                EntityMonster monster = new EntityMonster(this);
                 monster.SetHealthPoint(START_MONSTER_HEALTH + GetPlayerNumbers() * PLUS_MONSTER_HEALTH + (stage - 1) * PLUS_MONSTER_HEALTH / 2);
                 monsters.Add(monster.GetEntityID(), monster);
                 ClientWorker player = GetRandomUser();
@@ -183,7 +183,7 @@ namespace Platformer_Game_Server.modules {
                 }
             }
             else {
-                BroadcastMessage(new JsonSetting().Add("id", client.GetUserID()).Add("hp", client.player.GetHealthPoint()/client.player.MAX_HEALTH).Add("type", "PlayerDamaged").ToString());
+                BroadcastMessage(new JsonSetting().Add("id", client.GetUserID()).Add("hp", Math.Round(client.player.GetHealthPoint() / client.player.MAX_HEALTH * 100) / 100).Add("type", "PlayerDamaged").ToString());
             }
         }
 

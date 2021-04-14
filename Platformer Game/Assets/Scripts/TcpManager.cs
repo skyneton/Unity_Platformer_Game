@@ -11,15 +11,15 @@ public class TcpManager : MonoBehaviour {
     private static int SERVER_PORT = 3000;
     public static TcpManager instance = null;
 
-    private static TcpClient socket;
-    private static NetworkStream stream;
-    private static StreamWriter writer;
-    private static StreamReader reader;
-    private static bool socketReady = false;
+    private TcpClient socket;
+    private NetworkStream stream;
+    private StreamWriter writer;
+    private StreamReader reader;
+    private bool socketReady = false;
 
-    private static string USER_ID;
-    private static Queue<string> packets = new Queue<string>();
-    private static bool isPlaying = false;
+    private string USER_ID;
+    private Queue<string> packets = new Queue<string>();
+    private bool isPlaying = false;
 
     private void Start() {
         if (instance == null) {
@@ -47,9 +47,11 @@ public class TcpManager : MonoBehaviour {
     }
 
     private void Update() {
-        if (socketReady && stream.DataAvailable) {
-            string data = reader.ReadLine();
-            if (data != null) DistinguishPacketType(data);
+        if (socketReady) {
+            while (stream.DataAvailable) {
+                string data = reader.ReadLine();
+                if (data != null) DistinguishPacketType(data);
+            }
         }
         if(!socket.Connected) {
             if (WaitingSceneDataManager.instance != null) {
@@ -181,6 +183,12 @@ public class TcpManager : MonoBehaviour {
                 }
                 break;
             }
+            case "Healing": {
+                if(isPlaying) {
+                    InGameDataManager.inGameManager.Healing(json.Get("id"), json.Get("scale"));
+                }
+                break;
+            }
         }
     }
 
@@ -192,5 +200,12 @@ public class TcpManager : MonoBehaviour {
 
     public string GetUserID() {
         return USER_ID;
+    }
+
+    public void OnDestroy() {
+        if(socket.Connected) {
+            SendMessage("Quit");
+            socket.Close();
+        }
     }
 }

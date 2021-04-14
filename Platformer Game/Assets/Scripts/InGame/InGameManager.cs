@@ -44,7 +44,6 @@ public class InGameManager : MonoBehaviour
     }
 
     public void Respawn(string uid) {
-        Debug.Log(uid);
         if (uid == null) return;
         EntityPlayer player;
         if (InGameDataManager.instance.players.TryGetValue(uid, out player)) {
@@ -63,6 +62,16 @@ public class InGameManager : MonoBehaviour
         EntityPlayer player;
         if (InGameDataManager.instance.players.TryGetValue(uid, out player)) {
             player.currentFill = 1f;
+        }
+    }
+
+    public void Healing(string uid, string scale) {
+        if (uid == null) return;
+        EntityPlayer player;
+        if (InGameDataManager.instance.players.TryGetValue(uid, out player)) {
+            float s = player.currentFill;
+            float.TryParse(scale, out s);
+            player.currentFill = s;
         }
     }
 
@@ -115,7 +124,7 @@ public class InGameManager : MonoBehaviour
             float nowX = Mathf.Round(transform.position.x * 1000) / 1000;
             float nowY = Mathf.Round(transform.position.y * 1000) / 1000;
             float nowRY = Mathf.Round(transform.rotation.y * 1000) / 1000;
-            if (sendLocationTimer >= 0.04f && (position == null || beforeX != nowX || beforeY != nowY || rY != nowRY)) {
+            if (sendLocationTimer >= 0.02f && (position == null || beforeX != nowX || beforeY != nowY || rY != nowRY)) {
                 JsonSetting json = new JsonSetting();
                 sendLocationTimer = 0f;
                 position = transform.position;
@@ -229,7 +238,7 @@ public class InGameManager : MonoBehaviour
         if (pid == null) return;
         EntityPlayer player;
         if (InGameDataManager.instance.players.TryGetValue(pid, out player)) {
-            Destroy(player.hpBar);
+            Destroy(player.hpBar.gameObject);
             Destroy(player.gameObject);
         }
     }

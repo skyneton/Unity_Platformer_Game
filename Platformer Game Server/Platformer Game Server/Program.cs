@@ -8,13 +8,13 @@ using System.Threading;
 
 namespace Platformer_Game_Server {
     class Program {
-        public static bool debug = true;
         public static TcpListener server;
         public static Dictionary<string, Room> roomList = new Dictionary<string, Room>();
         public static ArrayList clients = new ArrayList();
         public static Thread cleanConnectThread;
         public static bool isRunnable = true;
-        public static bool receive, post = true;
+        public static bool debug;
+        public static bool receive, post;
         static void Main(string[] args) {
             SocketServerSetting();
             cleanConnectThread = new Thread(() => CleanTcpListener());
@@ -63,6 +63,7 @@ namespace Platformer_Game_Server {
                         continue;
                     }
                     c.ReceivePacketEvent();
+                    c.Healing();
                 }
 
                 foreach(ClientWorker c in disconnectList) {

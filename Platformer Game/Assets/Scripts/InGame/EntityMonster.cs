@@ -68,6 +68,8 @@ public class EntityMonster : MonoBehaviour
 
             if (locationSend) {
                 IsOnGround();
+            }else {
+                rigid.gravityScale = 0f;
             }
         }
     }
@@ -102,7 +104,7 @@ public class EntityMonster : MonoBehaviour
             float nowX = Mathf.Round(transform.position.x * 1000) / 1000;
             float nowY = Mathf.Round(transform.position.y * 1000) / 1000;
             float nowRY = Mathf.Round(transform.rotation.y * 1000) / 1000;
-            if (sendLocationTimer >= 0.04f && (position == null || beforeX != nowX || beforeY != nowY || rY != nowRY)) {
+            if (sendLocationTimer >= 0.02f && (position == null || beforeX != nowX || beforeY != nowY || rY != nowRY)) {
                 JsonSetting json = new JsonSetting();
                 sendLocationTimer = 0f;
                 position = transform.position;

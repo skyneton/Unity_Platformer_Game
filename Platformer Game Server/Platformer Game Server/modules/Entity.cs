@@ -5,13 +5,17 @@ using System.Text;
 namespace Platformer_Game_Server.modules {
     class Entity {
         private Location loc = new Location();
+        private Room room;
         private float hp = 10f;
         private string ENTITY_ID;
         private bool isDie = false;
 
         private long beforeDamagedTime = 0;
-        public Entity() { }
-        public Entity(float hp) {
+        public Entity(Room room) {
+            this.room = room;
+        }
+        public Entity(Room room, float hp) {
+            this.room = room;
             this.hp = hp;
         }
 
@@ -29,6 +33,10 @@ namespace Platformer_Game_Server.modules {
 
         public void SubHealthPoint(float hp) {
             this.hp -= hp;
+        }
+
+        public void AddHealthPoint(float hp) {
+            this.hp += hp;
         }
 
         public void SetEntityID(string id) {
@@ -53,6 +61,10 @@ namespace Platformer_Game_Server.modules {
                 SubHealthPoint(damage);
                 beforeDamagedTime = now;
             }
+        }
+
+        public Room GetRoom() {
+            return room;
         }
     }
 }

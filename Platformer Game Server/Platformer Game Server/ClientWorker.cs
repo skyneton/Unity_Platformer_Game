@@ -95,7 +95,7 @@ namespace Platformer_Game_Server {
         public void ReceivePacketEvent() {
             try {
                 NetworkStream s = listener.GetStream();
-                if (s.DataAvailable) {
+                while (s.DataAvailable) {
                     string data = new StreamReader(s, true).ReadLine();
                     if (data != null) {
                         DistinguishPacket(data);
@@ -195,8 +195,16 @@ namespace Platformer_Game_Server {
         }
 
         public void SendLocation(Room room) {
-            JsonSetting json = new JsonSetting();
-            room.BroadcastMessageNotMe(USER_ID, json.Add("x", loc.GetX()).Add("y", loc.GetY()).Add("rY", loc.GetRY()).Add("id", USER_ID).Add("type", "Location").ToString());
+            room.BroadcastMessageNotMe(USER_ID, new JsonSetting().Add("x", loc.GetX()).Add("y", loc.GetY()).Add("rY", loc.GetRY()).Add("id", USER_ID).Add("type", "Location").ToString());
+        }
+
+        public void Healing() {
+            if(isPlaying) {
+                Room room = player.GetRoom();
+                if(room != null && player.Healing()) {
+                    room.BroadcastMessage(new JsonSetting().Add("id", USER_ID).Add("type", "Healing").Add("scale", Math.Round(player.GetHealthPoint()/player.MAX_HEALTH * 100)/100).ToString());
+                }
+            }
         }
     }
 }
