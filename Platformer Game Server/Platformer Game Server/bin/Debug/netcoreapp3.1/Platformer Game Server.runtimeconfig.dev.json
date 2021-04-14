@@ -1,0 +1,8 @@
+{
+  "runtimeOptions": {
+    "additionalProbingPaths": [
+      "C:\\Users\\skyne\\.dotnet\\store\\|arch|\\|tfm|",
+      "C:\\Users\\skyne\\.nuget\\packages"
+    ]
+  }
+}
