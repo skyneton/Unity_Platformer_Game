@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\skyne\\Desktop\\Platformer Game Server\\Platformer Game Server\\Platformer Game Server.csproj": {}
+    "D:\\github\\Unity_Platformer_Game\\Platformer Game Server\\Platformer Game Server\\Platformer Game Server.csproj": {}
   },
   "projects": {
-    "C:\\Users\\skyne\\Desktop\\Platformer Game Server\\Platformer Game Server\\Platformer Game Server.csproj": {
+    "D:\\github\\Unity_Platformer_Game\\Platformer Game Server\\Platformer Game Server\\Platformer Game Server.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\skyne\\Desktop\\Platformer Game Server\\Platformer Game Server\\Platformer Game Server.csproj",
+        "projectUniqueName": "D:\\github\\Unity_Platformer_Game\\Platformer Game Server\\Platformer Game Server\\Platformer Game Server.csproj",
         "projectName": "Platformer Game Server",
-        "projectPath": "C:\\Users\\skyne\\Desktop\\Platformer Game Server\\Platformer Game Server\\Platformer Game Server.csproj",
+        "projectPath": "D:\\github\\Unity_Platformer_Game\\Platformer Game Server\\Platformer Game Server\\Platformer Game Server.csproj",
         "packagesPath": "C:\\Users\\skyne\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\skyne\\Desktop\\Platformer Game Server\\Platformer Game Server\\obj\\",
+        "outputPath": "D:\\github\\Unity_Platformer_Game\\Platformer Game Server\\Platformer Game Server\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\skyne\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -40,10 +40,6 @@
         "netcoreapp3.1": {
           "targetAlias": "netcoreapp3.1",
           "dependencies": {
-            "Newtonsoft.Json": {
-              "target": "Package",
-              "version": "[13.0.1, )"
-            },
             "System.Collections.NonGeneric": {
               "target": "Package",
               "version": "[4.3.0, )"

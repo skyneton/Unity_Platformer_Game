@@ -20,6 +20,8 @@ namespace Platformer_Game_Server.modules {
 
         private long waitingTimer;
 
+        public string ROOM_ID;
+
         public void AddPlayer(ClientWorker client) {
             CleanPlayers();
 
@@ -241,10 +243,13 @@ namespace Platformer_Game_Server.modules {
                 else {
                     json.Replace("kills", client.player.kills).Replace("death", client.player.dies);
                 }
-                DelaySender(client, json.ToString(), 60, true);
+                DelaySender(client, json.ToString(), 500, true);
                 new DelayManager().Do(1000, () => { client.RoomQuit(); });
                 isFirst = false;
             }
+
+            worker.Clear();
+            monsters.Clear();
         }
 
         public bool IsAllPlayersDead() {

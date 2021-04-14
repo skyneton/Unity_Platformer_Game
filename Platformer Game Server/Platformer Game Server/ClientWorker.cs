@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
-using Platformer_Game_Server.modules;
+﻿using Platformer_Game_Server.modules;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -51,6 +50,7 @@ namespace Platformer_Game_Server {
             Room room = new Room();
             room.AddPlayer(this);
             ROOM_ID = Guid.NewGuid().ToString();
+            room.ROOM_ID = ROOM_ID;
             Program.roomList.Add(ROOM_ID, room);
             return room;
         }
