@@ -110,7 +110,7 @@ namespace PlatformerGameServer.Entities
 
         private bool HasForwardDown(double deltaTime)
         {
-            var blockX = (int) Math.Floor(Location.X + MoveSpeed * Location.Direction * deltaTime + WorldData.DifX) + Location.Direction;
+            var blockX = (int) Math.Floor(Location.X + MoveSpeed * Location.Direction * deltaTime + WorldData.DifX);
             var blockY = (int) Math.Floor(Location.Y + WorldData.DifY) - 1;
 
             return !((blockX < 0 || blockX >= WorldData.Map.GetLength(1)) ||
