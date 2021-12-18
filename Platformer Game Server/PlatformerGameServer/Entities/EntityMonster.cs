@@ -8,28 +8,33 @@ namespace PlatformerGameServer.Entities
 {
     public class EntityMonster : Entity
     {
-        public const long LocationSendTerm = 40;
+        private const long LocationSendTerm = 30;
         public const int StartMonsterCount = 3;
         public const int PlusMonsterNum = 2;
-        public const double Height = 0.44418;
+        private const double Height = 0.44418;
+        private const double Width = 0.18;
+        private const double TargetDistance = 4.5 * 4.5;
         
         public const float StartMonsterHealth = 30f;
         public const float PlusMonsterHealth = 4f;
 
-        public const double Gravity = -9.8;
+        private const double Gravity = -9.8;
+        private const double JumpPower = 8.3;
 
-        private static readonly double MoveSpeed = 4.3;
+        private static readonly double MoveSpeed = 4.5;
 
         private long beforeUpdateTime = TimeManager.CurrentTimeMillis;
         private Location beforeLocation;
 
-        private long LastLocationSendTime = TimeManager.CurrentTimeMillis;
+        private long lastLocationSendTime = TimeManager.CurrentTimeMillis;
 
         private readonly Room room;
 
         private double velocityY = 0;
 
-        private bool IsOnGround;
+        private bool isOnGround;
+
+        private Entity target;
 
         public EntityMonster(Room room, double x, double y)
         {
@@ -47,16 +52,21 @@ namespace PlatformerGameServer.Entities
             GravityUpdate(deltaTime);
             LocationSendUpdate(now);
             GroundCheck();
+            TargetUpdate();
             
             beforeUpdateTime = now;
         }
 
         private void Move(double deltaTime)
         {
-            if (HasForward(deltaTime) && !HasForwardDown(deltaTime))
+            Console.WriteLine(target);
+            if (!HasForward(deltaTime) && (HasForwardDown(deltaTime) || !isOnGround))
                 Forward(deltaTime);
             else
                 Location.Direction *= -1;
+            
+            if(HasJumpBarrier())
+                Jump();
         }
 
         private void GravityUpdate(double deltaTime)
@@ -64,7 +74,7 @@ namespace PlatformerGameServer.Entities
             if(velocityY > Gravity)
                 velocityY += Gravity * deltaTime;
             
-            var blockX = (int) Math.Floor(Location.X + WorldData.DifX);
+            var blockX = (int) Math.Floor(Location.X - Width + WorldData.DifX);
             var blockY = (int) Math.Floor(Location.Y - Height + WorldData.DifY);
 
             var updateY = Location.Y + velocityY * deltaTime;
@@ -75,57 +85,92 @@ namespace PlatformerGameServer.Entities
 
             for (var i = blockY; i >= 0 && i < height && i != checkY; i += direction)
             {
-                if (WorldData.Map[i, blockX] != 1) continue;
-                updateY = i - WorldData.DifY - direction + Height;
+                if (GetBlockCode(blockX, i) != 1) continue;
+                updateY = i - WorldData.DifY - direction - Height * direction;
                 if (velocityY < 0) velocityY = 0;
                 break;
             }
             
             checkY = (int) Math.Floor(updateY - Height + WorldData.DifY);
-            if (checkY < 0 || checkY >= height || WorldData.Map[checkY, blockX] == 1)
+            if (GetBlockCode(blockX, checkY) == 1)
             {
-                updateY = checkY - WorldData.DifY - direction + Height;
+                updateY = checkY - WorldData.DifY - direction - Height * direction;
                 if (velocityY < 0) velocityY = 0;
             }
             Location.Y = updateY;
         }
 
+        private void Jump()
+        {
+            if (!isOnGround) return;
+            velocityY += JumpPower;
+            isOnGround = false;
+        }
+
         private void GroundCheck()
         {
-            var blockX = (int) Math.Floor(Location.X + WorldData.DifX);
+            var blockX = (int) Math.Floor(Location.X - Width + WorldData.DifX);
             var blockY = (int) Math.Floor(Location.Y - Height + WorldData.DifY) - 1;
             
-            IsOnGround = !((blockX < 0 || blockX >= WorldData.Map.GetLength(1)) ||
-                           (blockY < 0 || WorldData.Map.GetLength(0) <= blockY) || WorldData.Map[blockY, blockX] == 1);
+            isOnGround = velocityY == 0 && GetBlockCode(blockX, blockY) == 1;
+        }
+
+        private void TargetUpdate()
+        {
+            if (target == null || target?.Location.DistancePow(Location) > TargetDistance)
+            {
+                target = room.NearPlayer(Location, TargetDistance);
+            }
         }
 
         private bool HasForward(double deltaTime)
         {
-            var blockX = (int) Math.Floor(Location.X + MoveSpeed * Location.Direction * deltaTime + WorldData.DifX);
+            var blockX = (int) Math.Floor(Location.X + MoveSpeed * Location.Direction * deltaTime - Width + WorldData.DifX);
             var blockY = (int) Math.Floor(Location.Y - Height + WorldData.DifY);
 
-            return !((blockX < 0 || blockX >= WorldData.Map.GetLength(1)) ||
-                     (blockY < 0 || WorldData.Map.GetLength(0) <= blockY) || WorldData.Map[blockY, blockX] == 1);
+            return GetBlockCode(blockX, blockY) == 1;
         }
 
         private bool HasForwardDown(double deltaTime)
         {
-            var blockX = (int) Math.Floor(Location.X + MoveSpeed * Location.Direction * deltaTime + WorldData.DifX);
-            var blockY = (int) Math.Floor(Location.Y + WorldData.DifY) - 1;
+            var blockX = (int) Math.Floor(Location.X + MoveSpeed * Location.Direction * deltaTime - Width + WorldData.DifX);
+            var blockY = (int) Math.Floor(Location.Y - Height + WorldData.DifY) - 1;
 
-            return !((blockX < 0 || blockX >= WorldData.Map.GetLength(1)) ||
-                     (blockY < 0 || WorldData.Map.GetLength(0) <= blockY) || WorldData.Map[blockY, blockX] == 1);
+            return GetBlockCode(blockX, blockY) == 1;
+        }
+
+        private bool HasJumpBarrier()
+        {
+            var blockX = (int) Math.Floor(Location.X - Width + WorldData.DifX);
+            var blockY = (int) Math.Floor(Location.Y - Height + WorldData.DifY);
+
+            return GetBlockCode(blockX, blockY + 2) == 0 &&
+                   GetBlockCode(blockX + Location.Direction, blockY + 2) == 0 && GetBlockCode(blockX + Location.Direction * 2, blockY + 2) == 0 &&
+                   (GetBlockCode(blockX + Location.Direction * 3, blockY + 2) == 1 ||
+                    GetBlockCode(blockX, blockY + 3) == 0 &&
+                    GetBlockCode(blockX + Location.Direction * 2, blockY + 3) == 0 &&
+                    GetBlockCode(blockX + Location.Direction * 3, blockY) == 1);
+        }
+
+        private static int GetBlockCode(int blockX, int blockY)
+        {
+            return IsWidthIn(blockX, blockY) && WorldData.Map[blockY, blockX] == 1 ? 1 : 0;
+        }
+
+        private static bool IsWidthIn(int blockX, int blockY)
+        {
+            return blockX >= 0 && blockX < WorldData.Map.GetLength(1) && blockY >= 0 &&
+                   blockY < WorldData.Map.GetLength(0);
         }
 
         private void Forward(double deltaTime)
         {
             Location.X += MoveSpeed * Location.Direction * deltaTime;
-            // Console.WriteLine("A");
         }
 
         private void LocationSendUpdate(long now)
         {
-            if (now - LastLocationSendTime < LocationSendTerm) return;
+            if (now - lastLocationSendTime < LocationSendTerm) return;
             if (Math.Abs(beforeLocation.X - Location.X) < 0.05 && Math.Abs(beforeLocation.Y - Location.Y) < 0.05 &&
                 beforeLocation.Direction == Location.Direction)
                 return;
@@ -133,6 +178,7 @@ namespace PlatformerGameServer.Entities
             room.Broadcast(new PacketOutMonsterLocation(EntityID.ToByteArray(), Location.X, Location.Y, Location.Direction));
 
             beforeLocation = Location.Clone();
+            lastLocationSendTime = now;
         }
     }
 }

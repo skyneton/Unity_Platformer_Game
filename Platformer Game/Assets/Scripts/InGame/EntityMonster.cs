@@ -241,12 +241,15 @@ public class EntityMonster : MonoBehaviour
                 }
             }
             else if(!hasForwardBottom && isGround) {
+                var rotation = transform.rotation;
                 if (transform.rotation.y == 0) {
                     if (target.transform.position.x > transform.position.x)
-                        QuaternionChange(transform.rotation.x, 180, transform.rotation.z);
+                    {
+                        QuaternionChange(rotation.x, 180, rotation.z);
+                    }
                 }else {
                     if (target.transform.position.x < transform.position.x)
-                        QuaternionChange(transform.rotation.x, 0, transform.rotation.z);
+                        QuaternionChange(rotation.x, 0, rotation.z);
                 }
             }
         }else {
@@ -257,14 +260,15 @@ public class EntityMonster : MonoBehaviour
                     betweenTimer--;
                 }
             }
+            var rotation = transform.rotation;
             if (canLeft && !canRight || canLeft && target.transform.position.x < transform.position.x) {
                 if (transform.rotation.y != 0 && betweenLength <= 5 && isGround) {
-                    QuaternionChange(transform.rotation.x, 0, transform.rotation.z);
+                    QuaternionChange(rotation.x, 0, rotation.z);
                     betweenLength++;
                 }
             }
-            else if (canRight && transform.rotation.y == 0 && betweenLength <= 5 && isGround) {
-                QuaternionChange(transform.rotation.x, 180, transform.rotation.z);
+            else if (canRight && rotation.y == 0 && betweenLength <= 5 && isGround) {
+                QuaternionChange(rotation.x, 180, rotation.z);
                 betweenLength++;
             }
             else if(!canLeft && !canRight) {

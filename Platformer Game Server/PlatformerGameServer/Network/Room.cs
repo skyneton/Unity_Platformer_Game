@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
 using PlatformerGameServer.Entities;
 using PlatformerGameServer.Network.Packet;
 using PlatformerGameServer.Utils;
@@ -125,13 +127,20 @@ namespace PlatformerGameServer.Network
             {
                 var index = random.Next(WorldData.Spawner.GetLength(0));
                 
-                var monster = new EntityMonster(this, WorldData.Spawner[index, 0], WorldData.Spawner[index, 1]);
-                monster.Health = EntityMonster.StartMonsterHealth +
-                                 EntityMonster.PlusMonsterHealth * (PlayerCount + CurrentStage - 1) * .7;
-                
+                var monster = new EntityMonster(this, WorldData.Spawner[index, 0], WorldData.Spawner[index, 1])
+                 {
+                     Health = EntityMonster.StartMonsterHealth +
+                              EntityMonster.PlusMonsterHealth * (PlayerCount + CurrentStage - 1) * .7
+                 };
+
                 Broadcast(new PacketOutSpawnMonster(monster.EntityID.ToByteArray(), monster.Location.X, monster.Location.Y));
                 monsters.Add(monster);
             }
+        }
+
+        public EntityPlayer NearPlayer(Location loc, double radiusPow)
+        {
+            return (from networkManager in networkManagers where networkManager.Player.Location.DistancePow(loc) <= radiusPow select networkManager.Player).FirstOrDefault();
         }
 
         public void UpdateLocation(NetworkManager networkManager, double x, double y, int direction)

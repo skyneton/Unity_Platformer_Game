@@ -1,3 +1,5 @@
+using System;
+
 namespace PlatformerGameServer.Utils
 {
     public class Location
@@ -23,6 +25,8 @@ namespace PlatformerGameServer.Utils
 
             return this;
         }
+
+        public double DistancePow(Location loc) => Math.Pow(loc.X - X, 2) + Math.Pow(loc.Y - Y, 2);
 
         public Location Clone() => new Location(X, Y, Direction);
 

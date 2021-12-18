@@ -15,8 +15,7 @@ public class EntityPlayer : MonoBehaviour {
     public bool IsGround { get; private set; } = true;
     public bool CanJump { get; private set; } = true;
 
-    public Transform groundChecker;
-    public float groundRadius = 0.2f;
+    public float groundRadius = 0.1f;
     public LayerMask groundLayer;
 
     private float attackTimer = 0f;
@@ -38,6 +37,7 @@ public class EntityPlayer : MonoBehaviour {
     public GameObject prfHpBar;
     public Image hpBar;
     private Image realHpBar;
+    private BoxCollider2D boxCollider2D;
     public float height = 1.2f;
     public float hpBarSpeed = 2f;
 
@@ -46,7 +46,9 @@ public class EntityPlayer : MonoBehaviour {
     private static readonly int IsAttack = Animator.StringToHash("isAttack");
 
     // Start is called before the first frame update
-    void Start() {
+    private void Start()
+    {
+        boxCollider2D = GetComponent<BoxCollider2D>();
         rigid = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
         soundManager = GameObject.Find("SoundManager").GetComponent<SoundManager>();
@@ -70,7 +72,7 @@ public class EntityPlayer : MonoBehaviour {
             Jump();
             AttackMotion();
         }
-        isMoving();
+        IsMoving();
     }
 
     public void HPBarPositionSetting() {
@@ -83,7 +85,7 @@ public class EntityPlayer : MonoBehaviour {
         }
     }
 
-    public void isMoving() {
+    private void IsMoving() {
         Vector3 nowLoc = transform.position;
 
         if (Math.Abs(beforeLoc.x - nowLoc.x) > 0.05f) {
@@ -104,7 +106,7 @@ public class EntityPlayer : MonoBehaviour {
     }
 
     private void IsOnGround() {
-        IsGround = Physics2D.Raycast(groundChecker.position, Vector2.down, groundRadius, groundLayer);
+        IsGround = Physics2D.BoxCast(boxCollider2D.bounds.center, boxCollider2D.bounds.size, 0f, Vector2.down,  groundRadius, groundLayer);
         if (IsGround) {
             CanJump = true;
         }

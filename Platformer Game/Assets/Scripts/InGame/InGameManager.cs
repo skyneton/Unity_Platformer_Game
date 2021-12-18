@@ -117,7 +117,6 @@ public class InGameManager : MonoBehaviour
     public void UpdateMonsterLocation(string eid, float x, float y, int direction)
     {
         if (!InGameDataManager.instance.monsters.TryGetValue(eid, out var monster)) return;
-        print(eid + ", " + x +", " + y);
         var vec = monster.transform.position;
         var rot = monster.transform.rotation;
         vec.x = x;
