@@ -14,7 +14,7 @@ public class NetworkManager : MonoBehaviour {
 
     public string userID;
 
-    public PlayType PlayType;
+    public PlayType PlayType { get; internal set; }
 
     private long LastPacketMillis = TimeManager.CurrentTimeMillis;
 
@@ -83,110 +83,6 @@ public class NetworkManager : MonoBehaviour {
             SendPacket(new PacketOutKeepAlive());
         }
     }
-
-    // public void DistinguishPacketType(string packet) {
-    //     switch (packet) {
-    //         case "GameStart": {
-    //             if (!isPlaying) {
-    //                 isPlaying = true;
-    //                 WaitingSceneDataManager.instance.gameStayManager.GameStart();
-    //                 SocketSend("InGameSceneLoaded");
-    //             }
-    //             break;
-    //         }
-    //         default: {
-    //             DistinguishJsonType(new JsonSetting().loadJsonString(packet));
-    //             break;
-    //         }
-    //     }
-    // }
-    //
-    // public void DistinguishJsonType(JsonSetting json) {
-    //     if (json.Get("type") == null) return;
-    //     switch (json.Get("type")) {
-    //         case "LeaveRoomPlayer": {
-    //             if (!isPlaying)
-    //                 WaitingSceneDataManager.instance.gameStayManager.RemovePlayer();
-    //             else
-    //                 InGameDataManager.inGameManager.RemovePlayer(json.Get("id"));
-    //             break;
-    //         }
-    //         case "EntityPlayerSpawn": {
-    //             if (isPlaying)
-    //                 InGameDataManager.inGameManager.SpawnPlayer(json.Get("id"));
-    //             break;
-    //         }
-    //         case "Location": {
-    //             if (isPlaying)
-    //                 InGameDataManager.inGameManager.UpdatePlayerLocation(json);
-    //             break;
-    //             }
-    //         case "EntityDied": {
-    //             if (isPlaying)
-    //                 InGameDataManager.inGameManager.EntityDied(json.Get("id"));
-    //             break;
-    //         }
-    //         case "PlayerDied": {
-    //             if (isPlaying)
-    //                 InGameDataManager.inGameManager.PlayerDied(json.Get("id"));
-    //             break;
-    //         }
-    //         case "EntityDamaged": {
-    //             if (isPlaying)
-    //                 InGameDataManager.inGameManager.EntityDamaged(json.Get("id"));
-    //             break;
-    //         }
-    //         case "PlayerDamaged": {
-    //             if (isPlaying)
-    //                 InGameDataManager.inGameManager.PlayerDamaged(json.Get("id"), json.Get("hp"));
-    //             break;
-    //         }
-    //         case "MonsterTarget": {
-    //             if (isPlaying)
-    //                 InGameDataManager.inGameManager.MonsterTarget(json.Get("id"));
-    //             break;
-    //         }
-    //         case "MonsterLocation": {
-    //             if (isPlaying)
-    //                 InGameDataManager.inGameManager.UpdateMonsterLocation(json);
-    //             break;
-    //             }
-    //         case "AttackMotionStart": {
-    //             if (isPlaying)
-    //                 InGameDataManager.inGameManager.AttackMotionStart(json.Get("id"));
-    //             break;
-    //         }
-    //         case "AttackMotionEnd": {
-    //             if (isPlaying)
-    //                 InGameDataManager.inGameManager.AttackMotionEnd(json.Get("id"));
-    //             break;
-    //         }
-    //         case "GameEnd": {
-    //             if (isPlaying)
-    //                 InGameDataManager.inGameManager.GameEnd(json);
-    //                 isPlaying = false;
-    //                 break;
-    //             }
-    //         case "Respawn": {
-    //             if (isPlaying) {
-    //                 InGameDataManager.inGameManager.Respawn(json.Get("id"));
-    //             }
-    //             break;
-    //         }
-    //         case "Recarvery": {
-    //             if(isPlaying) {
-    //                 InGameDataManager.inGameManager.Recarvery(json.Get("id"));
-    //             }
-    //             break;
-    //         }
-    //         case "Healing": {
-    //             if(isPlaying) {
-    //                 InGameDataManager.inGameManager.Healing(json.Get("id"), json.Get("scale"));
-    //             }
-    //             break;
-    //         }
-    //     }
-    // }
 
     public void SendPacket(Packet packet)
     {

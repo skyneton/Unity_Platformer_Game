@@ -14,10 +14,19 @@ public class PacketManager
         packets.Add((int) PacketType.WaitTimer, new PacketInWaitTimer());
         packets.Add((int) PacketType.WaitCancel, new PacketInWaitCancel());
         packets.Add((int) PacketType.GameStart, new PacketGameStart());
+        packets.Add((int) PacketType.GameFinish, new PacketInGameFinish());
         packets.Add((int) PacketType.SpawnPlayer, new PacketInSpawnPlayer());
+        packets.Add((int) PacketType.DestroyPlayer, new PacketInDestroyPlayer());
         packets.Add((int) PacketType.PlayerLocation, new PacketPlayerLocation());
         packets.Add((int) PacketType.SpawnMonster, new PacketInSpawnMonster());
         packets.Add((int) PacketType.MonsterLocation, new PacketInMonsterLocation());
+        packets.Add((int) PacketType.HealthUpdate, new PacketInHealthUpdate());
+        packets.Add((int) PacketType.AttackEntity, new PacketAttackEntity());
+        packets.Add((int) PacketType.DeathPlayer, new PacketPlayInDeathPlayer());
+        packets.Add((int) PacketType.DeathMonster, new PacketPlayInDeathMonster());
+        packets.Add((int) PacketType.Respawn, new PacketInRespawn());
+        packets.Add((int) PacketType.AttackMotionStart, new PacketAttackMotionStart());
+        packets.Add((int) PacketType.AttackMotionFinished, new PacketAttackMotionFinished());
         Packets = new ReadOnlyDictionary<int, Packet>(packets);
     }
     

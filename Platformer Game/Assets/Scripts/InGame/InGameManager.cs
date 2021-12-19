@@ -1,10 +1,11 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class InGameManager : MonoBehaviour
 {
-    private static readonly float LocationSendTerm = 40 / 1000.0f;
+    private static readonly float LocationSendTerm = 30 / 1000.0f;
     public GameObject playerModel;
     public GameObject monsterModel;
     private float sendLocationTimer = 0f;
@@ -35,42 +36,31 @@ public class InGameManager : MonoBehaviour
         var player = Instantiate(playerModel, playerGroup.transform, true).GetComponent<EntityPlayer>();
         player.transform.position = new Vector3(0, -4, -1);
         player.SetIsMe(NetworkManager.Instance.userID == uid);
-        InGameDataManager.instance.players.Add(uid, player);
+        InGameDataManager.Instance.players.Add(uid, player);
     }
 
     public void Respawn(string uid) {
         if (uid == null) return;
-        EntityPlayer player;
-        if (InGameDataManager.instance.players.TryGetValue(uid, out player)) {
-            Vector3 vec = player.transform.position;
+        if (!InGameDataManager.Instance.players.TryGetValue(uid, out var player)) return;
+        
+        var vec = player.transform.position;
 
-            vec.x = 0f;
-            vec.y = -4f;
+        vec.x = 0f;
+        vec.y = -4f;
 
-            player.transform.position = vec;
-            player.Respawn();
+        player.transform.position = vec;
+        player.Respawn();
+    }
+
+    public void PlayerHealthUpdate(string uid, float scale) {
+        if (InGameDataManager.Instance.players.TryGetValue(uid, out var player)) {
+            if(player.currentFill > scale)
+                player.Damaged();
+            player.currentFill = scale;
         }
     }
 
-    public void Recarvery(string uid) {
-        if (uid == null) return;
-        EntityPlayer player;
-        if (InGameDataManager.instance.players.TryGetValue(uid, out player)) {
-            player.currentFill = 1f;
-        }
-    }
-
-    public void Healing(string uid, string scale) {
-        if (uid == null) return;
-        EntityPlayer player;
-        if (InGameDataManager.instance.players.TryGetValue(uid, out player)) {
-            float s = player.currentFill;
-            float.TryParse(scale, out s);
-            player.currentFill = s;
-        }
-    }
-
-    public EntityMonster SpawnMonster(string eid, float x, float y, int direction = 0) {
+    public EntityMonster SpawnMonster(Guid eid, float x, float y, int direction = 0) {
         var monster = Instantiate(monsterModel).GetComponent<EntityMonster>();
         monster.entityID = eid;
 
@@ -82,14 +72,14 @@ public class InGameManager : MonoBehaviour
         rot.y = direction == -1 ? 0 : 1;
         monster.transform.rotation = rot;
 
-        InGameDataManager.instance.monsters.Add(eid, monster);
+        InGameDataManager.Instance.monsters.Add(eid.ToString(), monster);
         return monster;
     }
 
     public void SendLocationPacket()
     {
-        if (InGameDataManager.instance.me == null) return;
-        var pos = InGameDataManager.instance.me.transform.position;
+        if (InGameDataManager.Instance.me == null) return;
+        var pos = InGameDataManager.Instance.me.transform.position;
         
         sendLocationTimer += Time.deltaTime;
         if (!(sendLocationTimer >= LocationSendTerm) || (!(Vector2.Distance(pos, position) > 0.01f))) return;
@@ -97,12 +87,12 @@ public class InGameManager : MonoBehaviour
         position = pos;
 
         NetworkManager.Instance.SendPacket(new PacketPlayerLocation(pos.x, pos.y,
-            (int) Mathf.Round(InGameDataManager.instance.me.transform.rotation.y * -2 + 1)));
+            (int) Mathf.Round(InGameDataManager.Instance.me.transform.rotation.y * -2 + 1)));
     }
 
     public void UpdatePlayerLocation(string uid, float x, float y, int direction)
     {
-        if (!InGameDataManager.instance.players.TryGetValue(uid, out var player)) return;
+        if (!InGameDataManager.Instance.players.TryGetValue(uid, out var player)) return;
         var vec = player.transform.position;
         var rot = player.transform.rotation;
 
@@ -116,7 +106,7 @@ public class InGameManager : MonoBehaviour
 
     public void UpdateMonsterLocation(string eid, float x, float y, int direction)
     {
-        if (!InGameDataManager.instance.monsters.TryGetValue(eid, out var monster)) return;
+        if (!InGameDataManager.Instance.monsters.TryGetValue(eid, out var monster)) return;
         var vec = monster.transform.position;
         var rot = monster.transform.rotation;
         vec.x = x;
@@ -127,47 +117,38 @@ public class InGameManager : MonoBehaviour
     }
 
     public void EntityDied(string eid) {
-        if (InGameDataManager.instance.monsters.TryGetValue(eid, out var monster)) {
+        if (InGameDataManager.Instance.monsters.TryGetValue(eid, out var monster)) {
             monster.Die();
-            InGameDataManager.instance.monsters.Remove(eid);
+            InGameDataManager.Instance.monsters.Remove(eid);
         }
     }
 
     public void PlayerDied(string pid) {
-        if (InGameDataManager.instance.players.TryGetValue(pid, out var player)) {
+        if (InGameDataManager.Instance.players.TryGetValue(pid, out var player)) {
             player.Die();
         }
     }
 
     public void EntityDamaged(string eid) {
-        if (InGameDataManager.instance.monsters.TryGetValue(eid, out var monster)) {
+        if (InGameDataManager.Instance.monsters.TryGetValue(eid, out var monster)) {
             monster.Damaged();
         }
     }
 
-    public void PlayerDamaged(string pid, string hps) {
-        if (InGameDataManager.instance.players.TryGetValue(pid, out var player)) {
-            float hp = player.currentFill;
-            float.TryParse(hps, out hp);
-            player.currentFill = hp;
-            player.Damaged();
-        }
-    }
-
     public void AttackMotionStart(string pid) {
-        if (InGameDataManager.instance.players.TryGetValue(pid, out var player)) {
+        if (InGameDataManager.Instance.players.TryGetValue(pid, out var player)) {
             player.GetComponent<Animator>().SetBool(IsAttack, true);
         }
     }
 
     public void AttackMotionEnd(string pid) {
-        if (InGameDataManager.instance.players.TryGetValue(pid, out var player)) {
+        if (InGameDataManager.Instance.players.TryGetValue(pid, out var player)) {
             player.GetComponent<Animator>().SetBool(IsAttack, false);
         }
     }
 
     public void RemovePlayer(string pid) {
-        if (InGameDataManager.instance.players.TryGetValue(pid, out var player)) {
+        if (InGameDataManager.Instance.players.TryGetValue(pid, out var player)) {
             Destroy(player.hpBar.gameObject);
             Destroy(player.gameObject);
         }

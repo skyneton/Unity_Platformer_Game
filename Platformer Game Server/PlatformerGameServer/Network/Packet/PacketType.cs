@@ -9,9 +9,18 @@
         WaitTimer,
         WaitCancel,
         GameStart,
+        GameFinish,
         SpawnPlayer,
+        DestroyPlayer,
         PlayerLocation,
         SpawnMonster,
-        MonsterLocation
+        MonsterLocation,
+        AttackEntity,
+        HealthUpdate,
+        DeathPlayer,
+        DeathMonster,
+        Respawn,
+        AttackMotionStart,
+        AttackMotionFinished,
     }
 }

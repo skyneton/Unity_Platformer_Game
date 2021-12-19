@@ -9,18 +9,20 @@ namespace PlatformerGameServer.Entities
     public class EntityMonster : Entity
     {
         private const long LocationSendTerm = 30;
-        public const int StartMonsterCount = 3;
-        public const int PlusMonsterNum = 2;
+        public const int StartMonsterCount = 2;
+        public const int PlusMonsterNum = 1;
         private const double Height = 0.44418;
         private const double TargetDistance = 11.5 * 11.5;
+        public const double RegenAmount = 1.1;
         
         public const float StartMonsterHealth = 30f;
         public const float PlusMonsterHealth = 4f;
 
         private const double Gravity = -9.8;
         private const double JumpPower = 8.3;
+        public const double BaseMoveSpeed = 4.45;
 
-        private static readonly double MoveSpeed = 4.5;
+        public readonly double MoveSpeed;
 
         private long beforeUpdateTime = TimeManager.CurrentTimeMillis;
         private Location beforeLocation;
@@ -35,11 +37,16 @@ namespace PlatformerGameServer.Entities
 
         private Entity target;
 
-        public EntityMonster(Room room, double x, double y)
+        private long lastAttackTime;
+
+        public EntityMonster(Room room, double x, double y, double moveSpeed = BaseMoveSpeed)
         {
             Location.Set(x, y);
             this.room = room;
             beforeLocation = Location.Clone();
+
+            Damage = 2.8;
+            MoveSpeed = moveSpeed;
         }
 
         public void Update()
@@ -52,8 +59,18 @@ namespace PlatformerGameServer.Entities
             GravityUpdate(deltaTime);
             LocationSendUpdate(now);
             GroundCheck();
+            AttackUpdate();
+            HealthRegen(deltaTime);
             
             beforeUpdateTime = now;
+        }
+
+        private void HealthRegen(double deltaTime)
+        {
+            if (Health > 0)
+            {
+                Health += RegenAmount * deltaTime;
+            }
         }
 
         private void Move(double deltaTime)
@@ -105,6 +122,14 @@ namespace PlatformerGameServer.Entities
                 Forward(deltaTime);
             else
                 Location.Direction *= -1;
+        }
+
+        private void AttackUpdate()
+        {
+            if (target == null || target.Location.DistancePow(Location) > .5) return;
+            if (TimeManager.CurrentTimeMillis - lastAttackTime < 750) return;
+            room.DamagedPlayer((EntityPlayer) target, this);
+            lastAttackTime = TimeManager.CurrentTimeMillis;
         }
 
         private void GravityUpdate(double deltaTime)
@@ -226,7 +251,7 @@ namespace PlatformerGameServer.Entities
                 beforeLocation.Direction == Location.Direction)
                 return;
             
-            room.Broadcast(new PacketOutMonsterLocation(EntityID.ToByteArray(), Location.X, Location.Y, Location.Direction));
+            room.Broadcast(new PacketOutMonsterLocation(EntityId.ToByteArray(), Location.X, Location.Y, Location.Direction));
 
             beforeLocation = Location.Clone();
             lastLocationSendTime = now;

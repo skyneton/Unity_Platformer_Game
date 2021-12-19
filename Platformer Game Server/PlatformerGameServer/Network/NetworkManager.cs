@@ -40,7 +40,7 @@ namespace PlatformerGameServer.Network
             Player.Room?.RemovePlayer(this);
 
             if(ServerProperties.Debug)
-                Console.WriteLine("Client Disconnected - {0}", Player.EntityID);
+                Console.WriteLine("Client Disconnected - {0}", Player.EntityId);
         }
 
         public void Update()

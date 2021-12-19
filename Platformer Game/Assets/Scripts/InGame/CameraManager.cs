@@ -13,8 +13,8 @@ public class CameraManager : MonoBehaviour {
     }
     
     private void CameraMove() {
-        if (InGameDataManager.instance.me != null && InGameDataManager.instance.me.gameObject.activeSelf) {
-            GameObject player = InGameDataManager.instance.me.gameObject;
+        if (InGameDataManager.Instance.me != null && InGameDataManager.Instance.me.gameObject.activeSelf) {
+            GameObject player = InGameDataManager.Instance.me.gameObject;
             Vector3 target = transform.position;
             target.x = player.transform.position.x;
             target.y = player.transform.position.y;
@@ -23,7 +23,7 @@ public class CameraManager : MonoBehaviour {
     }
 
     private void SpecterMode() {
-        if (InGameDataManager.instance.me == null || !InGameDataManager.instance.me.gameObject.activeSelf) {
+        if (InGameDataManager.Instance.me == null || !InGameDataManager.Instance.me.gameObject.activeSelf) {
             float posY = Input.GetAxis("Vertical");
             float posX = Input.GetAxis("Horizontal");
             transform.Translate((posX * Vector3.right + posY * Vector3.up) * moveSpeed * Time.deltaTime);

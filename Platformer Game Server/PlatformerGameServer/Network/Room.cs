@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq;
 using PlatformerGameServer.Entities;
 using PlatformerGameServer.Network.Packet;
@@ -11,10 +10,10 @@ namespace PlatformerGameServer.Network
 {
     public class Room
     {
-        public const long WaitTime = 1000;
+        public const long WaitTime = 10 * 1000;
         public const int MaxPlayersInRoom = 4;
         public const int StartPlayerCount = 1;
-        public const long StageTerm = 2500;
+        public const long StageTerm = 4000;
         
         internal static ConcurrentBag<Room> Rooms = new();
 
@@ -37,10 +36,12 @@ namespace PlatformerGameServer.Network
             Broadcast(new PacketOutJoinPlayer());
             
             networkManagers.Add(networkManager);
-            networkManager.SendPacket(new PacketOutRoomConnect(PlayerCount, networkManager.Player.EntityID.ToByteArray()));
+            networkManager.SendPacket(new PacketOutRoomConnect(PlayerCount, networkManager.Player.EntityId.ToByteArray()));
 
+            networkManager.Player.Respawn();
+            networkManager.Player.Deaths = networkManager.Player.Kills = 0;
             networkManager.Player.Location.Set(0, -4);
-            networkManager.Player.Health = EntityPlayer.MaxHealth;
+            networkManager.Player.BeforeHealth = networkManager.Player.Health = EntityPlayer.MaxHealth;
 
             if (PlayType == PlayType.Wait)
             {
@@ -60,6 +61,8 @@ namespace PlatformerGameServer.Network
             
             if(PlayType != PlayType.Play)
                 Broadcast(new PacketOutQuitPlayer());
+            else
+                Broadcast(new PacketPlayOutDestroyPlayer(networkManager.Player.EntityId.ToByteArray()));
 
             if (PlayerCount >= StartPlayerCount || PlayType != PlayType.Wait) return;
             PlayType = PlayType.Nothing;
@@ -70,7 +73,7 @@ namespace PlatformerGameServer.Network
         {
             foreach (var client in networkManagers)
             {
-                networkManager.SendPacket(new PacketOutSpawnPlayer(client.Player.EntityID.ToByteArray()));
+                networkManager.SendPacket(new PacketOutSpawnPlayer(client.Player.EntityId.ToByteArray()));
             }
         }
 
@@ -80,6 +83,7 @@ namespace PlatformerGameServer.Network
             GameStartUpdate();
             MonsterSpawnUpdate();
             MonsterUpdate();
+            PlayerUpdate();
         }
 
         private void RoomDestroyUpdate()
@@ -109,8 +113,20 @@ namespace PlatformerGameServer.Network
             if (monsters.IsEmpty && TimeManager.CurrentTimeMillis - lastStageClearedTime > StageTerm)
             {
                 CurrentStage++;
-                // HealOrRespawn();
+                HealOrRespawn();
                 MonsterRandomSpawn(new Random(), EntityMonster.StartMonsterCount + EntityMonster.PlusMonsterNum * (CurrentStage - 1));
+            }
+        }
+
+        private void HealOrRespawn()
+        {
+            foreach (var networkManager in networkManagers)
+            {
+                if(!networkManager.Player.IsAlive)
+                    Broadcast(new PacketOutRespawn(networkManager.Player.EntityId.ToByteArray()));
+
+                networkManager.Player.Respawn();
+                networkManager.Player.Health = EntityPlayer.MaxHealth;
             }
         }
 
@@ -121,19 +137,28 @@ namespace PlatformerGameServer.Network
                 monster.Update();
         }
 
+        private void PlayerUpdate()
+        {
+            if (PlayType != PlayType.Play) return;
+            foreach(var networkManager in networkManagers)
+                networkManager.Player.Update();
+        }
+
         private void MonsterRandomSpawn(Random random, int count)
         {
             for (var i = 0; i < count; i++)
             {
                 var index = random.Next(WorldData.Spawner.GetLength(0));
                 
-                var monster = new EntityMonster(this, WorldData.Spawner[index, 0], WorldData.Spawner[index, 1])
+                var monster = new EntityMonster(this, WorldData.Spawner[index, 0], WorldData.Spawner[index, 1], EntityMonster.BaseMoveSpeed - random.NextDouble() * 1.2 - .4)
                  {
                      Health = EntityMonster.StartMonsterHealth +
-                              EntityMonster.PlusMonsterHealth * (PlayerCount + CurrentStage - 1) * .7
+                              EntityMonster.PlusMonsterHealth * (PlayerCount + CurrentStage - 1) * .5
                  };
 
-                Broadcast(new PacketOutSpawnMonster(monster.EntityID.ToByteArray(), monster.Location.X, monster.Location.Y));
+                monster.Location.Direction = random.Next(1) * 2 - 1;
+
+                Broadcast(new PacketOutSpawnMonster(monster.EntityId.ToByteArray(), monster.Location.X, monster.Location.Y, monster.Location.Direction));
                 monsters.Add(monster);
             }
         }
@@ -143,12 +168,46 @@ namespace PlatformerGameServer.Network
             return (from networkManager in networkManagers where networkManager.Player.Location.DistancePow(loc) <= radiusPow select networkManager.Player).FirstOrDefault();
         }
 
+        public void DamagedPlayer(EntityPlayer to, EntityMonster from)
+        {
+            to.Health -= from.Damage;
+            if (to.Health > 0) return;
+            to.Deaths++;
+            to.Die();
+            if (!GetAlivePlayer(out var networkManager))
+            {
+                foreach (var manager in networkManagers)
+                {
+                    manager.SendPacket(new PacketOutGameFinish(CurrentStage, manager.Player.Kills, manager.Player.Deaths));
+                }
+                PlayType = PlayType.Nothing;
+                networkManagers.Clear();
+                monsters.Clear();
+                return;
+            }
+            Broadcast(new PacketOutDeathPlayer(to.EntityId.ToByteArray()));
+        }
+
+        public void DamagedMonster(string to, EntityPlayer from)
+        {
+            if (!GetMonsterFromId(to, out var monster)) return;
+            monster.Health -= from.Damage;
+            if (monster.Health <= 0)
+            {
+                from.Kills++;
+                monsters.Remove(monster);
+                Broadcast(new PacketOutDeathMonster(monster.EntityId.ToByteArray()));
+            }
+            else
+                Broadcast(new PacketAttackEntity(monster.EntityId.ToByteArray()));
+        }
+
         public void UpdateLocation(NetworkManager networkManager, double x, double y, int direction)
         {
             networkManager.Player.Location.Set(x, y);
             networkManager.Player.Location.Direction = direction;
 
-            Broadcast(new PacketPlayerLocation(networkManager.Player.EntityID.ToByteArray(), x, y, direction),
+            Broadcast(new PacketPlayerLocation(networkManager.Player.EntityId.ToByteArray(), x, y, direction),
                 networkManager);
         }
 
@@ -160,7 +219,18 @@ namespace PlatformerGameServer.Network
                 networkManager.SendPacket(packet);
             }
         }
-        
+
+        public bool GetMonsterFromId(string id, out EntityMonster monster)
+        {
+            monster = monsters.FirstOrDefault(entityMonster => entityMonster.EntityId.ToString() == id);
+            return monster != null;
+        }
+
+        public bool GetAlivePlayer(out NetworkManager networkManager)
+        {
+            networkManager = networkManagers.FirstOrDefault(network => network.Player.IsAlive);
+            return networkManager != null;
+        }
         
         public static Room RoomCreateOrGet()
         {

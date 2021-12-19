@@ -10,7 +10,7 @@ public class SoundManager : MonoBehaviour {
     public AudioClip attackSound;
 
     // Start is called before the first frame update
-    void Start() {
+    private void Start() {
         audioSource = GetComponent<AudioSource>();
         audioSource.clip = background;
 

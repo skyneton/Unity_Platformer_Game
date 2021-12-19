@@ -112,7 +112,7 @@ public class EntityPlayer : MonoBehaviour {
         }
     }
 
-    void AttackMotion() {
+    private void AttackMotion() {
         if (Input.GetKeyDown(KeyCode.LeftControl)) {
             anim.SetBool(IsAttack, true);
             moveSpeed = 2.5f;
@@ -121,14 +121,13 @@ public class EntityPlayer : MonoBehaviour {
 
             attackTimer = 0f;
             AttackAround();
-            //TODO: Action
-            // TcpManager.instance.SocketSend("AttackMotionStart");
+            NetworkManager.Instance.SendPacket(new PacketAttackMotionStart());
         }
         if (Input.GetKeyUp(KeyCode.LeftControl)) {
             anim.SetBool(IsAttack, false);
             moveSpeed = 5f;
             jumpPower = 7f;
-            // TcpManager.instance.SocketSend("AttackMotionEnd");
+            NetworkManager.Instance.SendPacket(new PacketAttackMotionFinished());
         }
 
         if(Input.GetKey(KeyCode.LeftControl)) {
@@ -142,10 +141,10 @@ public class EntityPlayer : MonoBehaviour {
     }
 
     private void AttackAround() {
-        Collider2D col = Physics2D.OverlapCircle(transform.position, 2, (1 << LayerMask.NameToLayer("EntityMonster")));
+        var col = Physics2D.OverlapCircle(transform.position, 2, (1 << LayerMask.NameToLayer("EntityMonster")));
 
         if (col != null) {
-            AttackEntity(col.gameObject.GetComponent<EntityMonster>());
+            col.gameObject.GetComponent<EntityMonster>().Attacked();
         }
     }
 
@@ -176,10 +175,6 @@ public class EntityPlayer : MonoBehaviour {
         transform.Translate(Mathf.Abs(posX) * Vector3.right * moveSpeed * Time.deltaTime);
     }
 
-    private static void AttackEntity(EntityMonster enemy) {
-        enemy.Attacked();
-    }
-
     public void Attacked(string eid) {
         if (!isMe) return;
         long now = TimeManager.CurrentTimeMillis;
@@ -198,7 +193,7 @@ public class EntityPlayer : MonoBehaviour {
         isMe = me;
         
         if(me)
-            InGameDataManager.instance.me = this;
+            InGameDataManager.Instance.me = this;
 
         var vec = transform.position;
         vec.z = me ? -2 : -1;

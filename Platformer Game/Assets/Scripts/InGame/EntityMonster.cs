@@ -13,7 +13,7 @@ public class EntityMonster : MonoBehaviour
     private float beforeX;
     private float moveTimer = 0f;
     private bool beforeMove = false;
-    public string entityID;
+    public Guid entityID;
     private SoundManager soundManager;
     bool isDie = false;
     float dieTimer = 0f;
@@ -68,53 +68,30 @@ public class EntityMonster : MonoBehaviour
         damagedTimer = 0f;
         isDamaged = true;
         soundManager.PlayHitSound();
+        DamagedShow();
     }
 
     private void DamagedShow() {
         if (isDamaged) {
             damagedTimer += Time.deltaTime;
-            SpriteRenderer render = GetComponent<SpriteRenderer>();
+            var render = GetComponent<SpriteRenderer>();
             if (damagedTimer >= 1f) {
                 isDamaged = false;
                 damagedTimer = 0f;
                 render.color = new Color(1, 1, 1);
-            } else if (damagedTimer >= 0.9f) {
-                render.color = new Color(1, 0.8f, 0.8f, 0.7f);
-            } else if(damagedTimer >= 0.7f) {
+            } else if (damagedTimer % 0.2 <= 0.1) {
                 render.color = new Color(1, 1, 1);
-            } else if (damagedTimer >= 0.6f) {
-                render.color = new Color(1, 0.8f, 0.8f, 0.7f);
-            } else if (damagedTimer >= 0.4f) {
-                render.color = new Color(1, 1, 1);
-            } else if (damagedTimer >= 0.3f) {
-                render.color = new Color(1, 0.8f, 0.8f, 0.7f);
-            } else if (damagedTimer >= 0.1f) {
-                render.color = new Color(1, 1, 1);
-            } else {
+            }else {
                 render.color = new Color(1, 0.8f, 0.8f, 0.7f);
             }
         }
     }
 
     public void Attacked() {
-        long now = TimeManager.CurrentTimeMillis;
-        if (now - beforeDamagedTimeInClient > 300) {
-            //TODO: Damaged
-            // NetworkManager.instance.SocketSend(new JsonSetting().Add("entity", ENTITY_ID).Add("type", "EntityDamagedByPlayer").ToString());
-            beforeDamagedTimeInClient = now;
-        }
-    }
-
-    private void AttackAround() {
-        Collider2D col = Physics2D.OverlapCircle(transform.position, 1.1f, (1 << LayerMask.NameToLayer("EntityPlayer")));
-
-        if (col != null) {
-            AttackEntity(col.gameObject.GetComponent<EntityPlayer>());
-        }
-    }
-
-    private void AttackEntity(EntityPlayer enemy) {
-        enemy.Attacked(entityID);
+        var now = TimeManager.CurrentTimeMillis;
+        if (now - beforeDamagedTimeInClient <= 300) return;
+        NetworkManager.Instance.SendPacket(new PacketAttackEntity(entityID.ToByteArray()));
+        beforeDamagedTimeInClient = now;
     }
 
     public void QuaternionChange(float x, float y, float z) {
