@@ -223,11 +223,13 @@ public class EntityPlayer : MonoBehaviour {
     }
 
     private void TransparentSetting() {
-        if (!isMe) {
-            var color = render.color;
-            color.a -= 0.2f;
-            render.color = color;
-        }
+        if(render == null)
+            render = GetComponent<SpriteRenderer>();
+
+        if (isMe) return;
+        var color = render.color;
+        color.a -= 0.2f;
+        render.color = color;
     }
 
     public void Die() {

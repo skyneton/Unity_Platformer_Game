@@ -23,6 +23,7 @@ namespace PlatformerGameServer.Network
         {
             IsAvailable = true;
             this.client = client;
+            client.NoDelay = true;
             Player = new EntityPlayer(this);
             
             if(ServerProperties.Debug)
@@ -51,20 +52,22 @@ namespace PlatformerGameServer.Network
 
         private void PacketUpdate()
         {
-            if (client.Available == 0) return;
-            LastPacketMillis = TimeManager.CurrentTimeMillis;
-
-            var bytes = new byte[ByteBuf.ReadVarInt(client.GetStream())];
-            client.GetStream().Read(bytes, 0, bytes.Length);
-
-            try
+            while (client.Connected && client.Available > 0)
             {
-                PacketManager.Handle(this, new ByteBuf(bytes));
-            }
-            catch(Exception e)
-            {
-                ConsoleSender.WriteErrorLine(e.ToString());
-                client.Close();
+                LastPacketMillis = TimeManager.CurrentTimeMillis;
+
+                var bytes = new byte[ByteBuf.ReadVarInt(client.GetStream())];
+                client.GetStream().Read(bytes, 0, bytes.Length);
+
+                try
+                {
+                    PacketManager.Handle(this, new ByteBuf(bytes));
+                }
+                catch (Exception e)
+                {
+                    ConsoleSender.WriteErrorLine(e.ToString());
+                    client.Close();
+                }
             }
         }
 

@@ -12,6 +12,7 @@ namespace PlatformerGameServer.Network.Packet
         public void Write(ByteBuf buf)
         {
             buf.WriteVarInt((int) PacketType.AttackMotionStart);
+            buf.Write(_id);
         }
 
         public void Read(NetworkManager networkManager, ByteBuf buf)
@@ -32,6 +33,7 @@ namespace PlatformerGameServer.Network.Packet
         public void Write(ByteBuf buf)
         {
             buf.WriteVarInt((int) PacketType.AttackMotionFinished);
+            buf.Write(_id);
         }
 
         public void Read(NetworkManager networkManager, ByteBuf buf)

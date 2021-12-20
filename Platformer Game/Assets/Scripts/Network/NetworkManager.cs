@@ -69,11 +69,13 @@ public class NetworkManager : MonoBehaviour {
 
     private void PacketUpdate()
     {
-        if (client.Available == 0) return;
-        var bytes = new byte[ByteBuf.ReadVarInt(client.GetStream())];
-        client.GetStream().Read(bytes, 0, bytes.Length);
+        while (client.Connected && client.Available > 0)
+        {
+            var bytes = new byte[ByteBuf.ReadVarInt(client.GetStream())];
+            client.GetStream().Read(bytes, 0, bytes.Length);
 
-        PacketManager.Handle(this, new ByteBuf(bytes));
+            PacketManager.Handle(this, new ByteBuf(bytes));
+        }
     }
 
     private void KeepAliveUpdate()

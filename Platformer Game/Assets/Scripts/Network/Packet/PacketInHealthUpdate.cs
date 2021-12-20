@@ -9,6 +9,13 @@ public class PacketInHealthUpdate : Packet
 
     public void Read(NetworkManager networkManager, ByteBuf buf)
     {
-        InGameDataManager.inGameManager.PlayerHealthUpdate(new Guid(buf.Read(16)).ToString(), buf.ReadFloat());
+        try
+        {
+            InGameDataManager.inGameManager.PlayerHealthUpdate(new Guid(buf.Read(16)).ToString(), buf.ReadFloat());
+        }
+        catch (NullReferenceException)
+        {
+            
+        }
     }
 }

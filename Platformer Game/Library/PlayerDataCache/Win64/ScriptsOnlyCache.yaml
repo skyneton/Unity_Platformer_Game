@@ -16,7 +16,6 @@ ScriptsOnlyBuild:
     - UnityEditor.U2D.Animation.BoneGizmo
     Unity.2D.IK.Editor.dll:
     - UnityEditor.U2D.IK.IKEditorManager
-    - UnityEditor.U2D.IK.IKGizmos
     Unity.2D.IK.Runtime.dll:
     - UnityEditor.U2D.IK.IKEditorManagerHelper
     Unity.2D.Tilemap.Editor.dll:
@@ -33,10 +32,8 @@ ScriptsOnlyBuild:
     UnityEditor.Graphs.dll:
     - UnityEditor.Graphs.AnimationBlendTree.Graph
     - UnityEditor.Graphs.AnimationBlendTree.GraphGUI
-    - UnityEditor.Graphs.AnimationStateMachine.AnyStateNode
     - UnityEditor.Graphs.AnimationStateMachine.Graph
     - UnityEditor.Graphs.AnimationStateMachine.GraphGUI
-    - UnityEditor.Graphs.AnimationStateMachine.StateNode
     - UnityEditor.Graphs.AnimatorControllerTool
     UnityEditor.TestRunner.dll:
     - UnityEditor.TestTools.TestRunner.Api.CallbacksHolder
@@ -89,29 +86,29 @@ ScriptsOnlyBuild:
     - Class: 114
       Script: {instanceID: 1460}
     - Class: 114
-      Script: {instanceID: 2182}
+      Script: {instanceID: 2148}
     - Class: 114
-      Script: {instanceID: 2258}
+      Script: {instanceID: 2224}
     - Class: 114
-      Script: {instanceID: 2608}
+      Script: {instanceID: 2574}
     - Class: 114
-      Script: {instanceID: 2676}
+      Script: {instanceID: 2642}
     - Class: 114
-      Script: {instanceID: 2720}
+      Script: {instanceID: 2686}
     - Class: 114
-      Script: {instanceID: 2840}
+      Script: {instanceID: 2806}
     - Class: 114
-      Script: {instanceID: 3060}
+      Script: {instanceID: 3026}
+    - Class: 114
+      Script: {instanceID: 3276}
     - Class: 114
       Script: {instanceID: 3310}
     - Class: 114
-      Script: {instanceID: 3346}
+      Script: {instanceID: 3396}
     - Class: 114
-      Script: {instanceID: 3432}
+      Script: {instanceID: 4314}
     - Class: 114
-      Script: {instanceID: 4350}
-    - Class: 114
-      Script: {instanceID: 5076}
+      Script: {instanceID: 5040}
     - Class: 115
       Script: {instanceID: 0}
     - Class: 128
@@ -160,27 +157,27 @@ ScriptsOnlyBuild:
     - Class: 114
       Script: {instanceID: 1460}
     - Class: 114
-      Script: {instanceID: 1818}
+      Script: {instanceID: 1784}
     - Class: 114
-      Script: {instanceID: 2258}
+      Script: {instanceID: 2224}
     - Class: 114
-      Script: {instanceID: 2676}
+      Script: {instanceID: 2642}
+    - Class: 114
+      Script: {instanceID: 2806}
     - Class: 114
       Script: {instanceID: 2840}
     - Class: 114
-      Script: {instanceID: 2874}
+      Script: {instanceID: 3026}
     - Class: 114
-      Script: {instanceID: 3060}
+      Script: {instanceID: 3276}
     - Class: 114
-      Script: {instanceID: 3310}
+      Script: {instanceID: 3396}
     - Class: 114
-      Script: {instanceID: 3432}
+      Script: {instanceID: 4502}
     - Class: 114
-      Script: {instanceID: 4538}
+      Script: {instanceID: 4978}
     - Class: 114
-      Script: {instanceID: 5014}
-    - Class: 114
-      Script: {instanceID: 5664}
+      Script: {instanceID: 5628}
     - Class: 115
       Script: {instanceID: 0}
     - Class: 128
@@ -786,5 +783,4 @@ ScriptsOnlyBuild:
   scenePathNames:
   - Assets/Scenes/MainScene.unity
   - Assets/Scenes/InGameScene.unity
-  - Assets/Scenes/MainScene.unity
   playerPath: C:/Users/skyne/Desktop/Platformer/Platformer Game.exe

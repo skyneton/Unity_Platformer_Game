@@ -10,7 +10,6 @@ public class InGameManager : MonoBehaviour
     public GameObject monsterModel;
     private float sendLocationTimer = 0f;
     private Vector3 position;
-    private float rY = 0f;
     private GameObject playerGroup;
     private GameObject monsterGroup;
 
@@ -19,7 +18,7 @@ public class InGameManager : MonoBehaviour
     public Text otherInfo;
     private static readonly int IsAttack = Animator.StringToHash("isAttack");
 
-    void Start()
+    private void Start()
     {
         InGameDataManager.inGameManager = this;
         playerGroup = GameObject.Find("EntityPlayerGroup");
@@ -27,7 +26,7 @@ public class InGameManager : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
         SendLocationPacket();
     }
