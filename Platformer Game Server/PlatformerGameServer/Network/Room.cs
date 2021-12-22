@@ -165,7 +165,7 @@ namespace PlatformerGameServer.Network
 
         public EntityPlayer NearPlayer(Location loc, double radiusPow)
         {
-            return (from networkManager in networkManagers where networkManager.Player.Location.DistancePow(loc) <= radiusPow select networkManager.Player).FirstOrDefault();
+            return (from networkManager in networkManagers where networkManager.Player.IsAlive && networkManager.Player.Location.DistancePow(loc) <= radiusPow select networkManager.Player).FirstOrDefault();
         }
 
         public void DamagedPlayer(EntityPlayer to, EntityMonster from)
