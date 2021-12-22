@@ -180,7 +180,7 @@ namespace PlatformerGameServer.Entities
 
         private void TargetUpdate()
         {
-            if (target == null || target?.Location.DistancePow(Location) > TargetDistance)
+            if (target == null || !target.IsAlive || target.Location.DistancePow(Location) > TargetDistance)
             {
                 target = room.NearPlayer(Location, TargetDistance);
             }
