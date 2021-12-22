@@ -170,6 +170,7 @@ namespace PlatformerGameServer.Network
 
         public void DamagedPlayer(EntityPlayer to, EntityMonster from)
         {
+            if(!to.IsAlive) return;
             to.Health -= from.Damage;
             if (to.Health > 0) return;
             to.Deaths++;
